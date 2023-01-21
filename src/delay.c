@@ -27,9 +27,8 @@ void delay_timer1(unsigned int period_msec)
 
 // function that calls the delay function, multiple times, if the delay is longer than 4.194 seconds
 
-
 // call this function to delay for a period of time
-void delay1(unsigned int period_msec)
+void delay_msec(unsigned int period_msec)
 {
 	// maximum delay is 4194 seconds
 	// if the delay is longer than 4194 seconds, call the delay function multiple times
@@ -46,4 +45,9 @@ void delay1(unsigned int period_msec)
 			period_msec = 0;
 		}
 	}
+}
+
+void delay_sec(unsigned int period_sec)
+{
+	delay_msec(period_sec * 1000);
 }
