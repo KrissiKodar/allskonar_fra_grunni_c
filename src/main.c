@@ -4,8 +4,8 @@
 
 #define BAUD 57600
 #define MYUBRR F_CPU/16/BAUD-1
-#define I2C_ERROR 0xFF
-#define I2C_SUCCESS 0x00
+#define I2C_ERROR 0
+#define I2C_SUCCESS 1
 
 // initialize USART0
 void USART_init( unsigned int ubrr)
@@ -41,9 +41,9 @@ void USART_send_string(char *str)
 
 void I2C_init(void)
 {
-	// set SCL to 400 kHz
+	// set SCL to 100 kHz
 	TWSR = 0; // no prescaler
-	TWBR = ((F_CPU / 400000L) - 16) / 2; // 2 is multiplid by prescaler normally
+	TWBR = ((F_CPU / 100000L) - 16) / 2; // 2 is multiplid by prescaler normally
 	// enable TWI
 	TWCR = (1 << TWEN);
 }
@@ -52,9 +52,11 @@ void I2C_start(void)
 {
 	// send start condition
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
+	USART_send_string("11\n");
 	// wait for end of transmission
 	while (!(TWCR & (1 << TWINT)))
 		;
+	USART_send_string("111\n");
 }
 
 void I2C_stop(void)
@@ -111,8 +113,9 @@ uint8_t I2C_read_nack(void)
 uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 {
 	uint8_t c;
-
+	USART_send_string("1\n");
 	I2C_start();
+
 	// check if start was sent
 	if ( (c = I2C_status()) != 0x08)
 		return I2C_ERROR;
@@ -121,6 +124,7 @@ uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 	I2C_write(dev_addr);
 	// check for ACK (acknowledge), so we know that the device 
 	// knows it is being talked to
+
 	if ( (c = I2C_status()) != 0x18)
 		return I2C_ERROR;
 
@@ -182,22 +186,26 @@ int main(void)
 {
 	LED_init();
 	USART_init(MYUBRR);
+	USART_send_string("Start\n");
+	I2C_init();
 
 	//char string_test[] = "Hello World!\n";
-	while (1)
+/* 	while (1)
 	{
 		LED_on();
 		//USART_send_string("hello from kristjan!!!!\n");
 		delay_sec(1);
 		LED_off();
 		delay_sec(1);
-	}
+	} */
+
 
 	uint8_t c; //??????
-
-	if (I2C_ReadRegByte(0x68, 0x75, &c) == I2C_SUCCESS)
+	delay_sec(2);
+	if (I2C_ReadRegByte(0x16, 0x0D, &c) == I2C_SUCCESS)
 	{
 		USART_send_string("success\n");
+		USART_send_char(c);
 	}
 	else
 	{
