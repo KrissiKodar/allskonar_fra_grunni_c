@@ -1,7 +1,43 @@
 #include "DELAY.h"
 #include <avr/io.h>
 
-void delay_timer1(unsigned int period_msec)
+/*  */
+
+void delay_seconds (unsigned int period_sec)
+{
+	volatile unsigned long ul_Max, ul_Counter;
+	ul_Max = 380000 * period_sec;
+	while ( ul_Counter != ul_Max )
+	{
+		ul_Counter++;
+	}
+}
+
+void delay_milliseconds (unsigned int period_msec)
+{
+	volatile unsigned long ul_Max, ul_Counter;
+	ul_Max = 380 * period_msec;
+	while ( ul_Counter != ul_Max )
+	{
+		ul_Counter++;
+	}
+}
+
+void delay_microseconds (unsigned char __micro_delay)
+{
+	__asm__ volatile (
+		"nop" "\n\t" // 1 cycle
+		"nop" "\n\t" // 1 cycle
+		"nop" "\n\t" // 1 cycle
+		"1: dec %0" "\n\t" // 1 cycle
+		"brne 1b" // (1 cycle if false, 2 cycles if true)
+		: "=r" (__micro_delay) 
+		: "0" (__micro_delay) 
+	);
+}
+
+
+/* void delay_timer1(unsigned int period_msec) // fix later
 {
 	// set timer1 to CTC (WGM12= 1, WGM10 = 0)
 	TCCR1A = 0;
@@ -28,7 +64,7 @@ void delay_timer1(unsigned int period_msec)
 // function that calls the delay function, multiple times, if the delay is longer than 4.194 seconds
 
 // call this function to delay for a period of time
-void delay_msec(unsigned int period_msec)
+void delay_msec(unsigned int period_msec) // fix later
 {
 	// maximum delay is 4194 seconds
 	// if the delay is longer than 4194 seconds, call the delay function multiple times
@@ -47,7 +83,7 @@ void delay_msec(unsigned int period_msec)
 	}
 }
 
-void delay_sec(unsigned int period_sec)
+void delay_sec(unsigned int period_sec) // fix later
 {
 	delay_msec(period_sec * 1000);
-}
+} */
