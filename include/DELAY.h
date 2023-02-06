@@ -5,9 +5,9 @@
 // simple delays
 // keep the processor busy for a specified number of seconds, milliseconds, or microseconds
 // not using external timers
-void delay_seconds (unsigned int period_sec);
-void delay_milliseconds (unsigned int period_msec);
-void delay_microseconds (unsigned char __micro_delay);
+void delay_seconds(unsigned int period_sec);
+void delay_milliseconds(unsigned int period_msec);
+void delay_microseconds(unsigned char __micro_delay);
 
 
 

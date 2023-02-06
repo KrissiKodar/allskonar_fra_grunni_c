@@ -1,4 +1,6 @@
 #include "I2C.h"
+#include "USART.h"
+//#include "DELAY.h"
 
 void I2C_init(void)
 {
@@ -13,11 +15,11 @@ void I2C_start(void)
 {
 	// send start condition
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-	USART_send_string("11\n");
+	TxPrintString("11\n");
 	// wait for end of transmission
 	while (!(TWCR & (1 << TWINT)))
 		;
-	USART_send_string("111\n");
+	TxPrintString("111\n");
 }
 
 void I2C_stop(void)
@@ -74,7 +76,7 @@ uint8_t I2C_read_nack(void)
 uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 {
 	uint8_t c;
-	USART_send_string("1\n");
+	TxPrintString("1\n");
 	I2C_start();
 
 	// check if start was sent
@@ -95,8 +97,9 @@ uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 		return I2C_ERROR;
 	I2C_stop();
 
-	delay_msec(100); // 100 ms delay
-
+	//delay_milliseconds(100); // 100 ms delay
+	_delay_ms(100);
+	
 	I2C_start();
 	if ( (c = I2C_status()) != 0x08) // ekki repeted start (start ekki milli annars start og stop)
 		return I2C_ERROR;

@@ -5,30 +5,22 @@
 
 #define USART_BAUD 57600
 #define MYUBRR F_CPU/16/USART_BAUD-1
-#define BUFFER_SIZE 32
 
 
+void USART_send_char(unsigned char data);
 
-// increment index and wrap around if necessary
-int NextIndex(int index);
+void USART_send_string(unsigned char *str);
 
-//return 1 if buffer is empty, else return 0
-char TxBufferEmpty();
-
-// return 1 if buffer is full, else return 0
-char TxBufferFull();
-
-//return 1 if successful, else return 0
-char TxBufferAddChar(char c);
-
-
-char TxBufferReadChar(char *c);
-
-
-char TxPrintString(char *str);
-
-
-// initialize USART0
 void USART_init( unsigned int ubrr);
+
+unsigned char USART_receive(void);
+
+void USART_Transmit_Nibble_Hex(unsigned char data);
+
+void USART_Transmit_Byte_Hex(unsigned char data);
+
+void USART_Transmit_Int_Hex(unsigned int data);
+
+void USART_Transmit_Long_Hex(unsigned long data);
 
 #endif

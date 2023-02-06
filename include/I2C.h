@@ -1,6 +1,7 @@
 #ifndef I2C_H
 #define I2C_H
 #include <avr/io.h>
+#include <util/delay.h>
 
 #define I2C_ERROR 0
 #define I2C_SUCCESS 1
