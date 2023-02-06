@@ -85,7 +85,7 @@ char TxPrintString(char *str)
 	
 }
 
-// initialize USART0
+// initialize USART0d
 void USART_interrupt_init( unsigned int ubrr)
 {
 	/*Set USART_BAUD rate */

@@ -73,3 +73,28 @@ void USART_Transmit_Long_Hex(unsigned long data)
 	USART_Transmit_Int_Hex(data >> 16);
 	USART_Transmit_Int_Hex(data & 0x0000FFFF);
 }
+
+// convert incoming ascii number to actual number
+unsigned char ascii_to_number(char c)
+{
+	return c - '0';
+}
+
+// function that waits for a newline, then returns the number
+unsigned char get_unsigned_char_from_user(void)
+{
+	unsigned char c;
+	unsigned char number = 0;
+	while (1)
+	{
+		c = USART_receive();
+		if (c == '\r')
+		{
+			return number;
+		}
+		else
+		{
+			number = number * 10 + ascii_to_number(c);
+		}
+	}
+}

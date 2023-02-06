@@ -23,4 +23,10 @@ void USART_Transmit_Int_Hex(unsigned int data);
 
 void USART_Transmit_Long_Hex(unsigned long data);
 
+// convert incoming ascii number to actual number
+unsigned char ascii_to_number(char c);
+
+// function that waits for a newline, then returns the number
+unsigned char get_unsigned_char_from_user(void);
+
 #endif
