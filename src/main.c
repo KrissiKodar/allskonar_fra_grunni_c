@@ -1,10 +1,10 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-//#include <util/delay.h>
+#include <util/delay.h>
 #include "LED.h"
 
 //#include "DELAY.h"
-//#include "I2C.h"
+#include "I2C.h"
 
 #include "USART.h"
 
@@ -21,23 +21,6 @@ void timer2_pwm_init(void)
 	TCCR2B |= (1 << CS20);// these to set it to fast PWM mode, with TOP = 0xFF, update OCR2A on BOTTOM, TOV flag set on MAX, prescaler = 1
 }
 
-// timer function that clears timer on overflow
-// but triggers interrupt on compare match
-void timer_2_CTC_init(void)
-{
-	TCNT2 = 0x00; // clear timer
-	TCCR2A = 0x00; // (normal port operation)
-	TCCR2B |= (1 << CS20); // set prescaler to 1
-	OCR2A = 0x00; // set duty cycle to 0x00
-	TIMSK2 |= (1 << OCIE2A); // enable interrupt on compare match 
-	TIMSK2 |= (1 << TOIE2); // enable interrupt on overflow
-}
-
-void set_timer_2_CTC_duty_cycle(unsigned char duty_cycle)
-{
-	OCR2A = duty_cycle;
-}
-
 void set_D11_duty_cycle(unsigned char duty_cycle)
 {
 	OCR2A = duty_cycle;
@@ -48,15 +31,7 @@ void set_D3_duty_cycle(unsigned char duty_cycle)
 	OCR2B = duty_cycle;
 }
 
-ISR(TIMER2_COMPA_vect)
-{
-	LED_OFF;
-}
 
-ISR(TIMER2_OVF_vect)
-{
-	LED_ON;
-}
 
 int main(void)
 {	
@@ -64,20 +39,22 @@ int main(void)
 	LED_INIT;
 	asm("sei");
 	USART_init(MYUBRR);
+	I2C_init();
 	//timer2_pwm_init();
-	timer_2_CTC_init();
-
-	while (1)
-	{	
-		USART_send_string("Input duty cycle (0-255): \r\n");
-		c = 0;
-		//_delay_ms(100);
-		c = get_unsigned_char_from_user();
-		USART_send_string("Received: ");
-		USART_Transmit_Byte_Hex(c);
-		//set_D11_duty_cycle(c);
-		set_timer_2_CTC_duty_cycle(c);
-		USART_send_string("\r\n");
+	//timer_2_CTC_init();
+	//USART_send_string("LETS GO: \r\n");
+	_delay_ms(100);
+	if (I2C_ReadRegByte(0x1E, 0x0A, &c) == I2C_ERROR)
+	{
+		LED_ON;
+		I2C_stop();
+		USART_send_char('e');
 	}
+
+	USART_send_string("Success! \r\n");
+	USART_send_string("Read from register: ");
+	USART_Transmit_Byte_Hex(c);
+
+
 	return 0;
 }

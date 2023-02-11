@@ -1,6 +1,7 @@
 #include "I2C.h"
 #include "USART.h"
 //#include "DELAY.h"
+#include <util/delay.h>
 
 void I2C_init(void)
 {
@@ -15,11 +16,9 @@ void I2C_start(void)
 {
 	// send start condition
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-	TxPrintString("11\n");
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
+	while ((TWCR & (1 << TWINT)) == 0) // eda (!(TWCR & (1 << TWINT)))
 		;
-	TxPrintString("111\n");
 }
 
 void I2C_stop(void)
@@ -45,7 +44,7 @@ void I2C_write(uint8_t data)
 	TWDR = data;
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
+	while ((TWCR & (1 << TWINT)) == 0) // eda (!(TWCR & (1 << TWINT)))
 		;
 	// wait for ACK or NACK
 	// gerist sjalfkrafa (TWINT flag set)
@@ -56,7 +55,7 @@ uint8_t I2C_read_ack(void)
 	// read data
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
+	while ((TWCR & (1 << TWINT)) == 0) // eda (!(TWCR & (1 << TWINT)))
 		;
 	// return data
 	return TWDR;
@@ -67,7 +66,7 @@ uint8_t I2C_read_nack(void)
 	// read data
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
+	while ((TWCR & (1 << TWINT)) == 0) // eda (!(TWCR & (1 << TWINT)))
 		;
 	// return data
 	return TWDR;
@@ -76,7 +75,6 @@ uint8_t I2C_read_nack(void)
 uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 {
 	uint8_t c;
-	TxPrintString("1\n");
 	I2C_start();
 
 	// check if start was sent
@@ -98,14 +96,14 @@ uint8_t I2C_ReadRegByte(uint8_t dev_addr, uint8_t reg_addr, uint8_t* cReturn)
 	I2C_stop();
 
 	//delay_milliseconds(100); // 100 ms delay
-	_delay_ms(100);
+	_delay_ms(10);
 	
 	I2C_start();
 	if ( (c = I2C_status()) != 0x08) // ekki repeted start (start ekki milli annars start og stop)
 		return I2C_ERROR;
 	
 	// send that master wants to read from slave
-	I2C_write(dev_addr | 0x01); // SLA + R read er 0x01 og write er 0x00
+	I2C_write((dev_addr) | 0x01); // SLA + R read er 0x01 og write er 0x00
 	if ( (c = I2C_status()) != 0x40) // ath e SLA+R
 		return I2C_ERROR;
 
